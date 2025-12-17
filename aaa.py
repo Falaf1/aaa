@@ -81,10 +81,6 @@ def main():
             print(f"Приближенный корень: {result:.10f}")
             print(f"Значение функции: f({result:.6f}) = {f(result):.10e}")
             print(f"Количество итераций: {iterations}")
-            
-            # Проверка точности
-            error = abs(f(result))
-            print(f"Абсолютная погрешность: {error:.10e}")
     
     except ValueError:
         print("Ошибка! Введите целое число итераций.")
