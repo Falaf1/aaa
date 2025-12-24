@@ -5,10 +5,10 @@ class Value:
         self.val, self.err = float(val), float(err)
 
     def __str__(self): return f"{self.val} ± {self.err}"
-    def add(self, o): return Value(self.val + o.val, self.err + o.err)
-    def sub(self, o): return Value(self.val - o.val, self.err + o.err)
-    def mul(self, o): return Value(self.val * o.val, abs(self.val) * o.err + abs(o.val) * self.err)
-    def div(self, o): return Value(self.val / o.val, (abs(o.val) * self.err + abs(self.val) * o.err) / (o.val ** 2))
+    def add(self, а): return Value(self.val + a.val, self.err + a.err)
+    def sub(self, a): return Value(self.val - a.val, self.err + a.err)
+    def mul(self, a): return Value(self.val * a.val, abs(self.val) * a.err + abs(a.val) * self.err)
+    def div(self, a): return Value(self.val / a.val, (abs(a.val) * self.err + abs(self.val) * a.err) / (a.val ** 2))
     def power(self, n): return Value(self.val ** n, abs(n * self.val ** (n - 1) * self.err))
     def sqrt(self): return Value(math.sqrt(self.val), self.err / (2 * math.sqrt(self.val)))
 
@@ -36,12 +36,11 @@ while True:
         continue
 
     v, e = map(float, input("Введите второе число и погрешность: ").split())
-    o = Value(v, e)
+    a = Value(v, e)
 
     ops = {"+": current.add, "-": current.sub, "*": current.mul, "/": current.div}
     if cmd in ops:
-        current = ops[cmd](o)
+        current = ops[cmd](a)
         print("Результат:", current)
     else:
         print("Неизвестная операция")
-
