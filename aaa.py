@@ -1,91 +1,47 @@
 import math
 
-def f(x):
-    """Функция x^2 - sin(x) - 1 = 0"""
-    return x**2 - math.sin(x) - 1
+class Value:
+    def __init__(self, val, err=0.0):
+        self.val, self.err = float(val), float(err)
 
-def bisection_method(a, b, iterations):
-    """
-    Метод половинного деления (дихотомии)
-    
-    Параметры:
-    a, b - границы интервала [1, 2]
-    iterations - количество итераций
-    
-    Возвращает:
-    приближенное значение корня
-    """
-    # Проверка, что функция меняет знак на концах интервала
-    if f(a) * f(b) >= 0:
-        return "На интервале [a, b] функция должна иметь разные знаки"
-    
-    for i in range(1, iterations + 1):
-        # Находим середину интервала
-        c = (a + b) / 2
-        
-        # Выводим информацию о текущей итерации
-        print(f"Итерация {i}: a = {a:.6f}, b = {b:.6f}, c = {c:.6f}, f(c) = {f(c):.6f}")
-        
-        # Определяем, в какой половине находится корень
-        if f(a) * f(c) < 0:
-            b = c  # корень в левой половине
-        else:
-            a = c  # корень в правой половине
-    
-    # Возвращаем среднее значение последнего интервала
-    root = (a + b) / 2
-    return root
+    def __str__(self): return f"{self.val} ± {self.err}"
+    def add(self, o): return Value(self.val + o.val, self.err + o.err)
+    def sub(self, o): return Value(self.val - o.val, self.err + o.err)
+    def mul(self, o): return Value(self.val * o.val, abs(self.val) * o.err + abs(o.val) * self.err)
+    def div(self, o): return Value(self.val / o.val, (abs(o.val) * self.err + abs(self.val) * o.err) / (o.val ** 2))
+    def power(self, n): return Value(self.val ** n, abs(n * self.val ** (n - 1) * self.err))
+    def sqrt(self): return Value(math.sqrt(self.val), self.err / (2 * math.sqrt(self.val)))
 
-def main():
-    print("МЕТОД ПОЛОВИННОГО ДЕЛЕНИЯ (ДИХОТОМИИ)")
-    print("=" * 50)
-    print("Решение уравнения: x^2 - sin(x) - 1 = 0")
-    print("Интервал: [1, 2]")
-    print("=" * 50)
-    
-    # Ввод количества итераций
-    try:
-        iterations = int(input("Введите количество итераций: "))
-        
-        if iterations <= 0:
-            print("Количество итераций должно быть положительным числом!")
-            return
-        
-        # Заданные параметры
-        a = 1.0
-        b = 2.0
-        
-        print(f"\nНачальные значения:")
-        print(f"a = {a}, f(a) = {f(a):.6f}")
-        print(f"b = {b}, f(b) = {f(b):.6f}")
-        print(f"f(a)*f(b) = {f(a)*f(b):.6f}")
-        
-        if f(a) * f(b) >= 0:
-            print("\nВНИМАНИЕ: f(a)*f(b) >= 0, метод может не работать!")
-            print("Но продолжим вычисления...")
-        
-        print("\n" + "=" * 50)
-        print("Процесс вычислений:")
-        print("=" * 50)
-        
-        # Выполнение метода
-        result = bisection_method(a, b, iterations)
-        
-        print("\n" + "=" * 50)
-        print("РЕЗУЛЬТАТ:")
-        print("=" * 50)
-        
-        if isinstance(result, str):
-            print(result)
-        else:
-            print(f"Приближенный корень: {result:.10f}")
-            print(f"Значение функции: f({result:.6f}) = {f(result):.10e}")
-            print(f"Количество итераций: {iterations}")
-    
-    except ValueError:
-        print("Ошибка! Введите целое число итераций.")
-    except Exception as e:
-        print(f"Произошла ошибка: {e}")
+print(
+    "Калькулятор с абсолютной погрешностью\nФормат числа: значение погрешность  (пример: 10 0.2)\nКоманды: +  -  *  /  ^  sqrt  exit\n")
 
-if __name__ == "__main__":
-    main()
+current = None
+
+while True:
+    if not current:
+        v, e = map(float, input("Введите число и погрешность: ").split())
+        current = Value(v, e)
+        print("Текущее значение:", current)
+        continue
+
+    cmd = input("\nОперация (+ - * / ^ sqrt exit): ").strip()
+    if cmd == "exit": break
+    if cmd == "sqrt":
+        current = current.sqrt()
+        print("Результат:", current)
+        continue
+    if cmd == "^":
+        current = current.power(float(input("Введите степень: ")))
+        print("Результат:", current)
+        continue
+
+    v, e = map(float, input("Введите второе число и погрешность: ").split())
+    o = Value(v, e)
+
+    ops = {"+": current.add, "-": current.sub, "*": current.mul, "/": current.div}
+    if cmd in ops:
+        current = ops[cmd](o)
+        print("Результат:", current)
+    else:
+        print("Неизвестная операция")
+
